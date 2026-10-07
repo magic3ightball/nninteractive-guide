@@ -1,0 +1,117 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>점 한 번 클릭의 여정 · 스토리형</title><style>
+:root{--bg:#fff;--ink:#1b1d21;--muted:#6b7280;--line:#e6e8ec;--soft:#f5f6f8;--accent:#4f46e5;--accent-soft:#eeedfd;--pos:#2a9d6f;--neg:#d6453d;--prev:#3b82f6;--gest:#f2b600;--slice:#14161a;--organ:#8d9299}
+@media(prefers-color-scheme:dark){:root{--bg:#0f1115;--ink:#e8eaee;--muted:#98a0ab;--line:#262a31;--soft:#171a20;--accent:#9a95ff;--accent-soft:#1f1e3a;--pos:#43c08a;--neg:#ff6b62;--prev:#6aa4ff}}
+*{box-sizing:border-box}html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.75 -apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo",Pretendard,sans-serif;-webkit-font-smoothing:antialiased}
+h1{font-size:clamp(28px,4vw,40px);line-height:1.2;letter-spacing:-.025em;margin:0 0 10px}
+h2{font-size:22px;letter-spacing:-.015em;margin:0 0 6px;line-height:1.3}
+.lead{color:var(--muted);font-size:18px;margin:0;max-width:640px}
+.term{border-bottom:1.5px dotted var(--muted);cursor:help}
+#tip{position:fixed;z-index:50;max-width:270px;background:var(--ink);color:var(--bg);font-size:14px;line-height:1.5;padding:8px 11px;border-radius:8px;pointer-events:none;opacity:0;transition:opacity .12s}
+.pos{color:var(--pos);font-weight:700}.neg{color:var(--neg);font-weight:700}.prev{color:var(--prev);font-weight:700}
+ul.k{margin:8px 0 0;padding:0;list-style:none}ul.k li{position:relative;padding-left:18px;margin:5px 0}ul.k li:before{content:"";position:absolute;left:3px;top:.72em;width:6px;height:6px;border-radius:50%;background:var(--accent)}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--bg)}
+.seg button{font:inherit;font-size:14.5px;border:0;background:transparent;color:var(--muted);padding:7px 14px;cursor:pointer}
+.seg button[aria-pressed=true]{background:var(--ink);color:var(--bg)}
+.seg button.p[aria-pressed=true]{background:var(--pos);color:#fff}.seg button.n[aria-pressed=true]{background:var(--neg);color:#fff}
+.btn{font:inherit;font-size:14.5px;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:10px;padding:7px 14px;cursor:pointer}.btn:hover{border-color:var(--accent);color:var(--accent)}
+.note{font-size:13.5px;color:var(--muted)}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+.top{max-width:1120px;margin:0 auto;padding:56px 24px 8px}
+.legend{display:flex;gap:18px;flex-wrap:wrap;margin-top:18px;font-size:14.5px;color:var(--muted)}
+.legend i{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+.story{max-width:1120px;margin:0 auto;padding:0 24px;display:grid;grid-template-columns:minmax(0,5fr) minmax(0,6fr);gap:48px}
+.steps{padding:6vh 0 18vh}
+.step{min-height:74vh;display:flex;flex-direction:column;justify-content:center;opacity:.28;transition:opacity .35s}
+.step.on{opacity:1}
+.step .no{font:700 13px/1 ui-monospace,Menlo,monospace;color:var(--accent);letter-spacing:.06em;margin-bottom:8px}
+.step h2{font-size:25px}
+.stage-wrap{position:sticky;top:0;height:100vh;display:flex;align-items:center}
+.stage{width:100%;background:var(--soft);border:1px solid var(--line);border-radius:18px;padding:12px 12px 8px}
+#stage{width:100%;height:auto;display:block}
+#stage g,#stage text{transition:opacity .45s ease,transform .6s cubic-bezier(.4,.1,.2,1)}
+#stage text{font-family:inherit}
+.dots{display:flex;gap:8px;justify-content:center;padding:8px 0 4px}
+.dots button{width:9px;height:9px;border-radius:50%;border:0;background:var(--line);cursor:pointer;padding:0}
+.dots button.on{background:var(--accent);width:24px;border-radius:5px;transition:width .2s}
+.tg{margin-top:14px}
+.end{max-width:760px;margin:0 auto;padding:0 24px 120px}
+.take{background:var(--accent-soft);border-radius:12px;padding:16px 20px;font-weight:700;font-size:19px}
+@media(max-width:860px){.story{display:block;padding:0 16px}.stage-wrap{height:auto;position:sticky;top:0;z-index:5;padding:8px 0;background:var(--bg)}.steps{padding:0 0 30vh}.step{min-height:56vh;justify-content:flex-start;padding-top:22px}}
+</style></head><body>
+<header class="top"><h1>점 한 번 클릭의 여정</h1>
+<p class="lead">간 CT에서 점 하나를 찍으면 마스크가 나오기까지, 스크롤하면서 한 단계씩 따라가 봅니다. 점선 밑줄 친 용어는 올려 보면 쉬운 설명이 나와요.</p>
+<div class="legend"><span><i style="background:var(--pos)"></i>Positive (포함)</span><span><i style="background:var(--neg)"></i>Negative (제외)</span><span><i style="background:var(--prev)"></i>직전 결과</span><span><i style="background:var(--gest)"></i>내가 한 동작</span></div></header>
+<div class="story"><div class="steps" id="steps">
+<section class="step" data-i="0"><div class="no">STEP 1 / 6</div><h2>2D 슬라이스 위에서 간을 가리킨다</h2>
+<ul class="k"><li>CT는 층층이 쌓인 3D, 화면엔 <span class="term" data-tip="3D CT를 얇게 썬 한 장짜리 2D 사진이에요. 화면에는 이 한 장만 보여요.">슬라이스</span> 한 장만 보임</li><li>도구는 점·상자·붓·올가미 — 이번엔 <b>점</b></li></ul></section>
+<section class="step" data-i="1"><div class="no">STEP 2 / 6</div><h2>클릭은 3D 좌표 한 점</h2>
+<ul class="k"><li>클릭 위치 → <span class="term" data-tip="3D 영상의 "픽셀". 가로·세로·깊이가 있는 아주 작은 상자 한 칸이에요.">복셀</span> 좌표 (x, y, z)</li><li>3D 위치라서 앞뒤 슬라이스에도 값이 생김</li></ul></section>
+<section class="step" data-i="2"><div class="no">STEP 3 / 6</div><h2>클릭 둘레에 ‘공 모양’ 숫자 덩어리</h2>
+<ul class="k"><li>반지름 <b>4칸</b>의 공 (9×9×9)</li><li>가운데 1.0 → 가장자리 약 0.2 (<span class="term" data-tip="값의 범위를 약속한 크기로 맞추는 것. 여기서는 가운데를 1.0으로 두고 멀어질수록 작게 만들어요.">정규화</span>)</li><li>오른쪽은 한 슬라이스를 자른 단면의 실제 값</li></ul></section>
+<section class="step" data-i="3"><div class="no">STEP 4 / 6</div><h2>7개 <span class="term" data-tip="신경망에 넣는 "숫자 지도 한 겹". 포토샵의 레이어처럼 여러 장을 겹쳐 한 번에 입력해요.">채널</span> 중 한 곳에 기록</h2>
+<ul class="k"><li><span class="term" data-tip=""여기를 포함해" 라는 뜻의 입력이에요.">Positive</span> → 채널 3, <span class="term" data-tip=""여기는 빼 줘" 라는 뜻의 입력이에요.">Negative</span> → 채널 4</li><li>이미 값이 있으면 <b>더 큰 값만</b> 남기며 덮어씀</li></ul>
+<div class="tg"><div class="seg" id="sign"><button class="p" aria-pressed="true" data-v="3">Positive</button><button class="n" aria-pressed="false" data-v="4">Negative</button></div><div class="note" style="margin-top:6px">눌러서 어느 채널에 기록되는지 바꿔 보세요</div></div></section>
+<section class="step" data-i="4"><div class="no">STEP 5 / 6</div><h2><span class="term" data-tip="영상을 보고 "여기가 간이야"를 칠해 주는 AI 모델. 여기서는 ResEnc U-Net이라는 종류예요.">신경망</span>이 CT와 함께 읽는다</h2>
+<ul class="k"><li>CT 1장 + 채널 7장 = <b>8채널</b> 입력</li><li>클릭 위치 중심 <span class="term" data-tip="CT 전체가 아니라, 클릭 위치를 중심으로 잘라 낸 192×192×192 복셀 크기의 부분이에요.">조각</span>(192³)만 잘라서 계산</li><li>출력은 <span class="term" data-tip="간이면 1, 아니면 0으로 칠한 지도. 색칠한 영역 그 자체라고 보면 돼요.">마스크</span> (배경 0 / 간 1)</li></ul></section>
+<section class="step" data-i="5"><div class="no">STEP 6 / 6</div><h2>결과가 다음 계산의 입력이 된다</h2>
+<ul class="k"><li>마스크 → 채널 0 (직전 결과) = <span class="term" data-tip="계산 결과를 다음 계산의 입력으로 다시 넣는 것이에요.">되먹임</span></li><li>결과가 조각 테두리에 닿으면 <span class="term" data-tip="결과가 조각 테두리에 닿으면 "더 넓게 보고 다시 계산"하는 기능이에요.">AutoZoom</span>: ×1.5씩 넓게, 최대 ×4</li></ul></section>
+</div>
+<div class="stage-wrap"><div class="stage"><svg id="stage" viewBox="0 0 600 470" role="img" aria-label="클릭이 마스크가 되는 과정 도식"></svg><div class="dots" id="dots"></div></div></div></div>
+<div class="end"><div class="take">한 번의 클릭은 ‘작은 공’일 뿐이고, 간 전체로 퍼지는 건 신경망이 한다</div>
+<p class="note" style="margin-top:14px">프로토타입 범위: ‘점’ 경로 하나만 구현했습니다. 상자·붓·올가미도 같은 틀(입력 → 숫자 지도 → 채널 → 신경망)을 따르고 2단계의 모양만 달라집니다. 원본 근거: 코드(inference_session.py, interaction/point.py) + 논문 arXiv 2503.08373.</p></div>
+<div id="tip" role="tooltip"></div><script>
+const tip=document.getElementById('tip');
+function bindTips(root=document){root.querySelectorAll('.term').forEach(t=>{if(t._b)return;t._b=1;t.tabIndex=0;const show=()=>{tip.textContent=t.dataset.tip;const r=t.getBoundingClientRect();tip.style.opacity=1;tip.style.left=Math.max(8,Math.min(innerWidth-280,r.left))+'px';tip.style.top=Math.min(innerHeight-80,r.bottom+8)+'px'};const hide=()=>tip.style.opacity=0;t.addEventListener('mouseenter',show);t.addEventListener('focus',show);t.addEventListener('mouseleave',hide);t.addEventListener('blur',hide)})}
+const BALL=[[0, 0, 0, 0, 0.2, 0, 0, 0, 0], [0, 0, 0.2, 0.2, 0.3, 0.2, 0.2, 0, 0], [0, 0.2, 0.3, 0.5, 0.5, 0.5, 0.3, 0.2, 0], [0, 0.2, 0.5, 0.7, 0.8, 0.7, 0.5, 0.2, 0], [0.2, 0.3, 0.5, 0.8, 1.0, 0.8, 0.5, 0.3, 0.2], [0, 0.2, 0.5, 0.7, 0.8, 0.7, 0.5, 0.2, 0], [0, 0.2, 0.3, 0.5, 0.5, 0.5, 0.3, 0.2, 0], [0, 0, 0.2, 0.2, 0.3, 0.2, 0.2, 0, 0], [0, 0, 0, 0, 0.2, 0, 0, 0, 0]];
+const ORGAN='M36,125 C45,45 165,25 246,75 C285,112.5 240,195 150,210 C75,220 30,180 36,125Z';
+const VESSEL='M60,125 C75,75 150,55 216,85';
+
+const svg=document.getElementById('stage');
+const CH=['CT 영상','0  직전 결과','1  상자·올가미 +','2  상자·올가미 −','3  점 +','4  점 −','5  붓 +','6  붓 −'];
+const COL=['#9aa0a8','var(--prev)','var(--pos)','var(--neg)','var(--pos)','var(--neg)','var(--pos)','var(--neg)'];
+let sel=4; // 행 인덱스 (4=점+, 5=점−)
+function sliceG(){return `<rect width="300" height="250" rx="14" fill="var(--slice)"/><path d="${ORGAN}" fill="var(--organ)"/><path d="${VESSEL}" fill="none" stroke="#b5b9be" stroke-width="5" opacity=".6"/><g data-s="1,2"><circle cx="150" cy="120" r="14" fill="none" stroke="var(--gest)" stroke-width="5"/><circle cx="150" cy="120" r="3" fill="var(--gest)"/></g>`}
+function gridG(){let o='';for(let r=0;r<9;r++)for(let c=0;c<9;c++){const v=BALL[r][c];const x=c*30,y=r*30;o+=`<rect x="${x}" y="${y}" width="30" height="30" fill="var(--bg)" stroke="var(--line)"/>`;if(v){o+=`<rect x="${x}" y="${y}" width="30" height="30" fill="var(--pos)" fill-opacity="${.12+v*.78}"/><text x="${x+15}" y="${y+20}" text-anchor="middle" font-size="12" font-weight="700" fill="${v>.65?'#fff':'var(--ink)'}">${v.toFixed(1)}</text>`}}return o+`<rect width="270" height="270" fill="none" stroke="var(--ink)" stroke-width="1.5"/>`}
+function thumb(x,y,s,col){let o='';for(let r=0;r<9;r++)for(let c=0;c<9;c++){const v=BALL[r][c];if(v)o+=`<rect x="${x+c*s}" y="${y+r*s}" width="${s}" height="${s}" fill="${col}" fill-opacity="${.15+v*.85}"/>`}return o}
+function chanG(){let o='';CH.forEach((l,i)=>{const y=i*40,on=i===sel,c=COL[i];o+=`<g class="row" data-r="${i}"><rect x="0" y="${y}" width="360" height="34" rx="9" fill="${c}" fill-opacity="${on?.9:.1}" stroke="${c}" stroke-width="${on?2.5:1}" style="transition:fill-opacity .3s"/><text x="14" y="${y+23}" font-size="16" font-weight="${on?800:500}" fill="${on?'#fff':'var(--ink)'}">${l}</text>${on?`<g>${thumb(318,y+5,2.8,'#fff')}</g>`:''}</g>`});return o}
+function netG(){return `<g data-s="4,5"><text x="0" y="-8" font-size="14" fill="var(--muted)">입력 8채널 → 192×192×192 조각</text>
+<rect x="0" y="6" width="270" height="92" rx="14" fill="var(--bg)" stroke="var(--ink)" stroke-width="1.5"/><text x="135" y="46" text-anchor="middle" font-size="21" font-weight="800" fill="var(--ink)">신경망</text><text x="135" y="72" text-anchor="middle" font-size="15" fill="var(--muted)">ResEnc U-Net</text>
+<path d="M135 100 V148" stroke="var(--ink)" stroke-width="2.4" fill="none" marker-end="url(#ah)"/>
+<rect x="0" y="152" width="270" height="92" rx="14" fill="var(--pos)" fill-opacity=".14" stroke="var(--pos)" stroke-width="2"/><text x="135" y="192" text-anchor="middle" font-size="21" font-weight="800" fill="var(--ink)">간 마스크 (0 / 1)</text><text x="135" y="218" text-anchor="middle" font-size="15" fill="var(--muted)">Slicer의 Liver 세그먼트에 칠해짐</text></g>`}
+svg.innerHTML=`<defs><marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerUnits="userSpaceOnUse" markerWidth="16" markerHeight="16" orient="auto"><path d="M0 0L10 5L0 10z" fill="context-stroke"/></marker></defs>
+<g id="stack" data-s="1"><rect x="150" y="115" width="300" height="250" rx="14" fill="none" stroke="var(--muted)" stroke-dasharray="5 5" opacity=".5" transform="translate(-26,-26)"/><rect x="150" y="115" width="300" height="250" rx="14" fill="none" stroke="var(--muted)" stroke-dasharray="5 5" opacity=".5" transform="translate(-13,-13)"/></g>
+<g id="slice">${sliceG()}</g>
+<text data-s="0,1" x="300" y="400" text-anchor="middle" font-size="16" fill="var(--muted)">2D 슬라이스 한 장 (어두운 바탕에 회색이 간)</text>
+<text data-s="1" x="300" y="428" text-anchor="middle" font-size="16" font-weight="700" fill="var(--ink)">앞뒤 슬라이스에도 값이 생긴다</text>
+<g id="link" data-s="2"><path d="M122 204 H256" stroke="var(--gest)" stroke-width="2.5" stroke-dasharray="6 5" fill="none"/></g>
+<g id="grid" data-s="2">${gridG()}</g>
+<text data-s="2" id="glab" x="0" y="0" font-size="15" fill="var(--muted)">한 슬라이스 단면의 실제 값 (가운데 1.0)</text>
+<g id="chan">${chanG()}</g>
+<text data-s="3" x="300" y="44" text-anchor="middle" font-size="16" fill="var(--muted)">내 입력이 기록되는 곳</text>
+<g id="net">${netG()}</g>
+<path data-s="4,5" d="M296 215 H316" stroke="var(--ink)" stroke-width="2.4" fill="none" marker-end="url(#ah)"/>
+<g id="loop" data-s="5"><path d="M420 364 V446 H4 V101 H12" stroke="var(--prev)" stroke-width="3" stroke-dasharray="8 6" fill="none" marker-end="url(#ah)"/><text x="215" y="438" text-anchor="middle" font-size="16" font-weight="800" fill="var(--prev)">마스크 → 채널 0 (되먹임)</text></g>`;
+const tf={
+ slice:['translate(150px,115px)','translate(150px,115px)','translate(14px,130px) scale(.62)',null,null,null],
+ grid:[null,null,'translate(268px,64px)',null,null,null],
+ chan:['translate(120px,62px)','translate(120px,62px)','translate(120px,62px)','translate(120px,62px)','translate(10px,62px) scale(.78)','translate(10px,62px) scale(.78)'],
+ net:['translate(320px,100px)','translate(320px,100px)','translate(320px,100px)','translate(320px,100px)','translate(320px,120px)','translate(320px,120px)']
+};
+const vis={slice:[1,1,1,0,0,0],grid:[0,0,1,0,0,0],chan:[0,0,0,1,1,1]};
+function setState(i){
+ for(const k in tf){const el=document.getElementById(k);el.style.transform=tf[k][i]||tf[k].find(x=>x)||'';if(vis[k])el.style.opacity=vis[k][i]}
+ svg.querySelectorAll('[data-s]').forEach(e=>{e.style.opacity=e.dataset.s.split(',').includes(String(i))?1:0});
+ document.getElementById('glab').setAttribute('transform','translate(268,364)');
+ document.querySelectorAll('.step').forEach(s=>s.classList.toggle('on',+s.dataset.i===i));
+ document.querySelectorAll('#dots button').forEach((d,j)=>d.classList.toggle('on',j===i));
+}
+document.getElementById('dots').innerHTML=[0,1,2,3,4,5].map(i=>`<button aria-label="단계 ${i+1}" data-i="${i}"></button>`).join('');
+document.querySelectorAll('#dots button').forEach(b=>b.onclick=()=>document.querySelector(`.step[data-i="${b.dataset.i}"]`).scrollIntoView({block:'center'}));
+const io=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting)setState(+e.target.dataset.i)})},{rootMargin:'-42% 0px -42% 0px'});
+document.querySelectorAll('.step').forEach(s=>io.observe(s));
+document.querySelectorAll('#sign button').forEach(b=>b.onclick=()=>{sel=+b.dataset.v+1;document.querySelectorAll('#sign button').forEach(x=>x.setAttribute('aria-pressed',x===b));document.getElementById('chan').innerHTML=chanG();setState(3)});
+setState(0);
+
+bindTips();</script></body></html>

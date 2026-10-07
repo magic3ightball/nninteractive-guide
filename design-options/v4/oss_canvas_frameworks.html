@@ -1,0 +1,114 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>캔버스 · 플로우 오픈소스 후보 비교</title><style>
+:root{--bg:#f6f7f9;--card:#fff;--ink:#1b1d21;--muted:#6b7280;--line:#e3e5e9;--soft:#f1f2f5;--accent:#4f46e5;--accent-soft:#eeedfd;--ok:#2a9d6f;--warn:#d98a00;--bad:#d6453d}
+@media(prefers-color-scheme:dark){:root{--bg:#0f1115;--card:#181b20;--ink:#e8eaee;--muted:#98a0ab;--line:#292d34;--soft:#1e2228;--accent:#9a95ff;--accent-soft:#25244a;--ok:#43c08a;--warn:#f0b24a;--bad:#ff6b62}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16.5px/1.7 -apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo",Pretendard,sans-serif;-webkit-font-smoothing:antialiased}
+.w{max-width:1100px;margin:0 auto;padding:44px 20px 100px}
+h1{font-size:clamp(26px,4vw,36px);letter-spacing:-.025em;margin:0 0 8px;line-height:1.2}
+h2{font-size:22px;margin:46px 0 6px;letter-spacing:-.015em}
+.lead{color:var(--muted);margin:0;max-width:680px}
+.term{border-bottom:1.5px dotted var(--muted);cursor:help}
+#tip{position:fixed;z-index:50;max-width:280px;background:var(--ink);color:var(--bg);font-size:14px;line-height:1.5;padding:8px 11px;border-radius:8px;pointer-events:none;opacity:0;transition:opacity .12s}
+.need{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin-top:16px}
+.need div{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 14px;font-size:14.5px}.need b{display:block}
+.rec{background:var(--accent-soft);border-radius:16px;padding:20px 24px;margin-top:22px}
+.rec h3{margin:0 0 6px;font-size:19px}.rec ul{margin:6px 0 0;padding-left:20px}.rec li{margin:3px 0}
+.tools{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
+.tools button{font:inherit;font-size:14px;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:999px;padding:5px 14px;cursor:pointer}
+.tools button[aria-pressed=true]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:16px}
+.c{background:var(--card);border:1px solid var(--line);border-radius:18px;overflow:hidden;display:flex;flex-direction:column}
+.c .viz{background:var(--soft);border-bottom:1px solid var(--line);aspect-ratio:16/9;display:flex}
+.c .viz svg{width:100%;height:100%}
+.c .b{padding:16px 18px 18px;display:flex;flex-direction:column;gap:8px;flex:1}
+.c h3{margin:0;font-size:20px;letter-spacing:-.01em;display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.c h3 small{font-size:12.5px;color:var(--muted);font-weight:600}
+.badges{display:flex;gap:6px;flex-wrap:wrap}
+.badge{font-size:12.5px;font-weight:700;border-radius:999px;padding:1px 10px;background:var(--soft);color:var(--muted)}
+.badge.ok{background:color-mix(in srgb,var(--ok) 14%,transparent);color:var(--ok)}.badge.warn{background:color-mix(in srgb,var(--warn) 16%,transparent);color:var(--warn)}.badge.bad{background:color-mix(in srgb,var(--bad) 14%,transparent);color:var(--bad)}
+.sum{font-size:15px;margin:0}
+.fit{display:flex;align-items:center;gap:8px;font-size:13.5px;color:var(--muted)}.dots{display:flex;gap:4px}.dots i{width:12px;height:12px;border-radius:50%;background:var(--line)}.dots i.on{background:var(--accent)}
+ul.k{margin:0;padding:0;list-style:none;font-size:14.5px}ul.k li{padding-left:18px;position:relative;margin:2px 0}ul.k li:before{position:absolute;left:0;font-weight:800}
+ul.p li:before{content:"+";color:var(--ok)}ul.n li:before{content:"−";color:var(--bad)}
+.c a{margin-top:auto;font-size:14px;font-weight:700;color:var(--accent);text-decoration:none}.c a:hover{text-decoration:underline}
+.tw{overflow-x:auto;border:1px solid var(--line);border-radius:14px;background:var(--card)}
+table{border-collapse:collapse;width:100%;min-width:760px;font-size:14.5px}th,td{padding:9px 12px;border-bottom:1px solid var(--line);text-align:center}th:first-child,td:first-child{text-align:left;font-weight:700;position:sticky;left:0;background:var(--card)}
+thead th{font-size:13px;color:var(--muted);font-weight:700}tr:last-child td{border-bottom:0}
+.y{color:var(--ok);font-weight:800}.t{color:var(--warn);font-weight:800}.q{color:var(--muted)}
+.note{font-size:13.5px;color:var(--muted);margin-top:10px}
+</style></head><body><div class="w">
+<h1>캔버스 · 플로우 오픈소스 후보 비교</h1>
+<p class="lead">지금 직접 만든 캔버스(카드 14개 + 화살표 + 주석 + 흐름 따라가기)를 대신할 수 있는 이미 만들어진 도구들을 찾았어요. 아래 그림은 각 도구가 어떤 모양인지 보여 주는 <b>개념도</b>이고, 실제 화면 캡처가 아닙니다.</p>
+
+<h2>우리가 필요한 것</h2>
+<div class="need"><div><b>카드(HTML)를 판 위에 배치</b>기존 14개 카드 그대로 올릴 수 있어야 함</div><div><b>카드 사이 화살표</b>흐름 1 → 2 → … 표현</div><div><b>팬·줌 + 미니맵</b>피그마처럼 이동·확대, 전체 위치 확인</div><div><b>주석(노트)</b>카드 옆 설명 + 핀</div><div><b>개인 무료 사용</b>혼자 공부·복습용</div></div>
+
+<div class="rec"><h3>결론: 1순위 React Flow, 대안 tldraw</h3><ul>
+<li><b>React Flow (xyflow)</b> — 카드를 {{노드}}로, 화살표를 {{엣지}}로 올리는 구조라 지금 만든 것과 가장 닮았어요. 미니맵·컨트롤·배경 격자가 기본 제공이고 MIT라 개인 사용에 제약이 없어요.</li>
+<li><b>tldraw</b> — "진짜 피그마·화이트보드 느낌"(자유 배치, 그리기)을 원하면 좋아요. 다만 오픈소스가 아니라 <b>자체 라이선스</b>예요. 개인 취미는 무료 Hobby 라이선스를 신청하는 방식이에요.</li>
+<li>React를 안 쓰고 싶다면 같은 팀의 <b>Svelte Flow</b>, Vue라면 <b>Vue Flow</b>가 같은 방식이에요.</li></ul></div>
+
+<h2>후보 11개</h2>
+<div class="tools" id="flt"></div>
+<div class="grid" id="grid"></div>
+
+<h2>기능 비교표</h2>
+<div class="tw"><table id="tb"></table></div>
+<p class="note">✓ = 확인한 공식 설명에 있음 · △ = 조건부(직접 구현·유료·일부) · ? = 이번 조사에서 확인 못 함. "?"를 "없음"으로 읽지 마세요. GitHub 별(stars)은 2026-10-07 조회 시점 값이에요. "적합도"는 우리 용도 기준의 제 판단입니다.</p>
+
+<h2>다음 단계 제안</h2>
+<ul class="k p" style="font-size:16px"><li>1순위(React Flow)로 지금 14개 카드와 주석 데이터를 옮긴 <b>작동 프로토타입</b>을 만들어 직접 비교해 보기</li><li>"자유 배치·그리기"가 중요하면 tldraw도 같은 내용으로 하나 더 만들어 비교하기</li><li>두 방식 모두 React 프로젝트(빌드 필요)가 되므로, 지금의 build.py → index.html 방식과는 구조가 달라져요</li></ul>
+</div><div id="tip"></div>
+<script>
+const GL={'노드':'그래프(연결도)에서 "점"에 해당하는 상자. 여기서는 카드 하나가 노드예요.','엣지':'노드와 노드를 잇는 선(화살표).','MIT':'가장 느슨한 오픈소스 라이선스 중 하나. 개인·상업 모두 거의 제약 없이 써도 돼요.','MPL 2.0':'오픈소스 라이선스. 이 라이브러리 파일을 고쳐 배포하면 그 파일은 공개해야 하지만, 가져다 쓰는 건 자유예요.','SDK':'앱에 끼워 쓰는 개발 도구 모음.','DOM':'웹 페이지를 이루는 HTML 요소 구조. DOM 기반이면 카드 안에 글·표·이미지를 HTML 그대로 넣기 쉬워요.','Canvas2D':'그림판처럼 픽셀로 직접 그리는 방식. 빠르지만 글자·표 같은 HTML 카드를 그대로 넣기는 어려워요.','CRDT':'여러 명이 동시에 편집해도 합쳐지게 하는 기술.'};
+const T=s=>s.replace(/\{\{(.+?)\}\}/g,(m,k)=>`<span class="term" data-tip="${GL[k]||''}">${k}</span>`);
+document.querySelectorAll('.rec li,.rec h3').forEach(e=>e.innerHTML=T(e.innerHTML));
+/* ---------- 개념도 SVG ---------- */
+const S=(inner,bg)=>`<svg viewBox="0 0 320 180" role="img" aria-label="개념도">${bg||''}${inner}</svg>`;
+const AR='<defs><marker id="m" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0L10 5L0 10z" fill="#8b93a1"/></marker></defs>';
+const node=(x,y,w,h,t,c='#4f46e5')=>`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="8" fill="#fff" stroke="${c}" stroke-width="2"/><rect x="${x}" y="${y}" width="${w}" height="12" rx="6" fill="${c}" opacity=".18"/><text x="${x+w/2}" y="${y+h/2+8}" text-anchor="middle" font-size="11" font-weight="700" fill="#1b1d21">${t}</text>`;
+const grid=`<pattern id="g" width="14" height="14" patternUnits="userSpaceOnUse"><circle cx="1.5" cy="1.5" r="1" fill="#c9ced6"/></pattern><rect width="320" height="180" fill="url(#g)"/>`;
+const flow=(a,b,c,lab)=>S(AR+grid+`<path d="M92 62 H118 M200 62 H226" stroke="#8b93a1" stroke-width="2" fill="none" marker-end="url(#m)"/><path d="M262 82 C262 130 160 110 160 120" stroke="#8b93a1" stroke-width="2" fill="none" marker-end="url(#m)"/>`+node(20,40,72,44,a)+node(124,40,76,44,b)+node(228,40,72,44,c)+node(120,120,80,40,'노트','#d98a00')+`<rect x="8" y="132" width="52" height="40" rx="6" fill="#fff" stroke="#c9ced6"/><rect x="14" y="140" width="22" height="14" fill="#c9ced6"/><rect x="40" y="146" width="12" height="8" fill="#4f46e5" opacity=".5"/><g transform="translate(262 132)"><rect width="46" height="40" rx="6" fill="#fff" stroke="#c9ced6"/><text x="23" y="17" text-anchor="middle" font-size="12" fill="#6b7280">＋</text><text x="23" y="34" text-anchor="middle" font-size="12" fill="#6b7280">－</text></g><text x="160" y="16" text-anchor="middle" font-size="10" fill="#6b7280">${lab}</text>`);
+const sketch=(d,extra='')=>`<path d="${d}" fill="none" stroke="#1b1d21" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" ${extra}/>`;
+const V={
+reactflow:flow('입력','숫자 지도','신경망','노드 = 카드 · 엣지 = 화살표 · 미니맵 · 컨트롤'),
+svelteflow:flow('입력','숫자 지도','신경망','Svelte로 같은 방식'),
+vueflow:flow('입력','숫자 지도','신경망','Vue 3로 같은 방식'),
+tldraw:S(`<rect x="30" y="34" width="74" height="50" rx="5" fill="#fff" stroke="#1b1d21" stroke-width="2.4"/><ellipse cx="170" cy="62" rx="38" ry="26" fill="#e8f0ff" stroke="#1b1d21" stroke-width="2.4"/><path d="M104 58 L132 60" stroke="#1b1d21" stroke-width="2.4" marker-end="url(#m)"/><rect x="226" y="96" width="62" height="52" rx="3" fill="#ffe66d" stroke="#d9b800" stroke-width="1.5" transform="rotate(4 257 122)"/><text x="257" y="126" text-anchor="middle" font-size="10" fill="#5a4b00" transform="rotate(4 257 122)">스티커 노트</text><path d="M74 100 q20 20 50 6 t60 14" stroke="#d6453d" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M236 40 l0 22 l6 -5 l5 12 l4 -2 l-5 -12 l8 -1z" fill="#1b1d21"/><g transform="translate(78 150)"><rect width="164" height="24" rx="12" fill="#fff" stroke="#c9ced6"/><circle cx="20" cy="12" r="5" fill="#4f46e5"/><rect x="40" y="7" width="10" height="10" fill="none" stroke="#6b7280"/><circle cx="72" cy="12" r="5" fill="none" stroke="#6b7280"/><path d="M92 17 L104 7" stroke="#6b7280"/><path d="M120 7 v10 M115 12 h10" stroke="#6b7280"/><text x="140" y="16" font-size="9" fill="#6b7280">Aa</text></g>`+AR,`<rect width="320" height="180" fill="#fafafa"/>`),
+excalidraw:S(AR+sketch('M32 40 q-2 -4 4 -4 L108 38 q4 1 3 6 L110 82 q-1 4 -5 3 L36 84 q-5 -1 -4 -6z')+sketch('M112 62 q20 -4 44 2','marker-end="url(#m)"')+sketch('M158 36 q30 -14 62 0 q16 22 -4 40 q-30 14 -56 0 q-14 -16 -2 -40z')+`<text x="72" y="66" text-anchor="middle" font-size="13" font-family="Comic Sans MS,cursive" fill="#1b1d21">입력</text><text x="190" y="62" text-anchor="middle" font-size="13" font-family="Comic Sans MS,cursive" fill="#1b1d21">신경망</text>`+sketch('M236 110 l36 -20 l36 20z')+sketch('M60 120 q50 18 110 -2 q40 -10 70 10')+`<g transform="translate(70 4)"><rect width="180" height="22" rx="11" fill="#fff" stroke="#c9ced6"/><rect x="14" y="6" width="10" height="10" fill="none" stroke="#6b7280"/><path d="M44 16 L54 6" stroke="#6b7280"/><circle cx="82" cy="11" r="5" fill="none" stroke="#6b7280"/><path d="M104 11h12" stroke="#6b7280"/><path d="M134 16q6 -12 10 0t10 0" stroke="#6b7280" fill="none"/></g>`,`<rect width="320" height="180" fill="#fff"/>`),
+jointjs:S(AR+`<rect x="16" y="30" width="70" height="40" rx="3" fill="#fff" stroke="#1b1d21" stroke-width="2"/><rect x="120" y="30" width="70" height="40" rx="3" fill="#fff" stroke="#1b1d21" stroke-width="2"/><polygon points="64,112 94,92 124,112 94,132" fill="#fff" stroke="#1b1d21" stroke-width="2"/><circle cx="86" cy="50" r="4" fill="#4f46e5"/><circle cx="120" cy="50" r="4" fill="#4f46e5"/><path d="M86 50 H120" stroke="#8b93a1" stroke-width="2" marker-end="url(#m)"/><path d="M155 70 V92 H124" stroke="#8b93a1" stroke-width="2" fill="none" marker-end="url(#m)"/><g opacity=".9"><rect x="216" y="14" width="92" height="150" rx="6" fill="#fff" stroke="#c9ced6" stroke-dasharray="4 3"/><text x="262" y="34" text-anchor="middle" font-size="9" fill="#d98a00" font-weight="700">JointJS+ (유료)</text><rect x="226" y="44" width="72" height="12" rx="3" fill="#eef0f3"/><rect x="226" y="62" width="72" height="12" rx="3" fill="#eef0f3"/><rect x="226" y="80" width="72" height="12" rx="3" fill="#eef0f3"/><text x="262" y="124" text-anchor="middle" font-size="9" fill="#6b7280">스텐실 · 인스펙터</text></g>`,grid),
+rete:S(AR+`<g><rect x="24" y="24" width="86" height="54" rx="8" fill="#fff" stroke="#1b1d21" stroke-width="2"/><text x="67" y="42" text-anchor="middle" font-size="10" font-weight="700">입력 A</text><circle cx="110" cy="58" r="5" fill="#4f46e5"/></g><g><rect x="24" y="100" width="86" height="54" rx="8" fill="#fff" stroke="#1b1d21" stroke-width="2"/><text x="67" y="118" text-anchor="middle" font-size="10" font-weight="700">입력 B</text><circle cx="110" cy="134" r="5" fill="#4f46e5"/></g><g><rect x="198" y="58" width="96" height="64" rx="8" fill="#fff" stroke="#1b1d21" stroke-width="2"/><text x="246" y="76" text-anchor="middle" font-size="10" font-weight="700">더하기</text><circle cx="198" cy="82" r="5" fill="#4f46e5"/><circle cx="198" cy="104" r="5" fill="#4f46e5"/></g><path d="M115 58 C160 58 150 82 193 82" stroke="#4f46e5" stroke-width="2.4" fill="none"/><path d="M115 134 C160 134 150 104 193 104" stroke="#4f46e5" stroke-width="2.4" fill="none"/>`,grid),
+litegraph:S(`<rect width="320" height="180" fill="#2b2f36"/><g font-size="9" fill="#d7dbe2"><rect x="18" y="26" width="92" height="52" rx="4" fill="#3b414b" stroke="#596070"/><rect x="18" y="26" width="92" height="14" rx="4" fill="#47506a"/><text x="26" y="36">Load Model</text><circle cx="110" cy="58" r="4" fill="#7cc4ff"/><rect x="26" y="48" width="56" height="10" rx="2" fill="#262a31"/><rect x="26" y="62" width="56" height="10" rx="2" fill="#262a31"/><rect x="130" y="82" width="96" height="62" rx="4" fill="#3b414b" stroke="#596070"/><rect x="130" y="82" width="96" height="14" rx="4" fill="#4a6a47"/><text x="138" y="92">Sampler</text><circle cx="130" cy="112" r="4" fill="#7cc4ff"/><circle cx="226" cy="112" r="4" fill="#ffb86b"/><rect x="238" y="30" width="68" height="52" rx="4" fill="#3b414b" stroke="#596070"/><rect x="238" y="30" width="68" height="14" rx="4" fill="#6a4747"/><text x="246" y="40">Preview</text><circle cx="238" cy="62" r="4" fill="#ffb86b"/></g><path d="M114 58 C130 58 118 112 126 112" stroke="#7cc4ff" stroke-width="2" fill="none"/><path d="M230 112 C236 112 230 62 234 62" stroke="#ffb86b" stroke-width="2" fill="none"/>`),
+blocksuite:S(`<rect width="320" height="180" fill="#fff"/><rect x="14" y="14" width="124" height="152" rx="8" fill="#fff" stroke="#c9ced6"/><rect x="26" y="28" width="70" height="8" rx="3" fill="#1b1d21"/><rect x="26" y="48" width="98" height="5" rx="2" fill="#c9ced6"/><rect x="26" y="60" width="90" height="5" rx="2" fill="#c9ced6"/><rect x="26" y="72" width="98" height="5" rx="2" fill="#c9ced6"/><rect x="26" y="92" width="98" height="40" rx="5" fill="#eef0f3"/><text x="26" y="150" font-size="9" fill="#6b7280">문서 모드</text><g><rect x="156" y="14" width="150" height="152" rx="8" fill="#fafafa" stroke="#c9ced6"/><rect x="170" y="32" width="54" height="36" rx="5" fill="#e8f0ff" stroke="#4f46e5" stroke-width="1.6"/><rect x="246" y="64" width="46" height="34" rx="5" fill="#ffe66d" stroke="#d9b800"/><path d="M224 52 L246 76" stroke="#8b93a1" stroke-width="1.6"/><ellipse cx="200" cy="120" rx="26" ry="16" fill="#fff" stroke="#1b1d21" stroke-width="1.6"/><text x="231" y="158" text-anchor="middle" font-size="9" fill="#6b7280">엣지리스(캔버스) 모드</text></g>`),
+konva:S(AR+grid+`<rect x="40" y="40" width="80" height="54" rx="4" fill="#e8f0ff" stroke="#4f46e5" stroke-width="2"/><g fill="#fff" stroke="#4f46e5" stroke-width="1.6"><rect x="35" y="35" width="10" height="10"/><rect x="115" y="35" width="10" height="10"/><rect x="35" y="89" width="10" height="10"/><rect x="115" y="89" width="10" height="10"/></g><circle cx="220" cy="70" r="30" fill="#ffe9e6" stroke="#d6453d" stroke-width="2"/><path d="M130 66 H186" stroke="#8b93a1" stroke-width="2" marker-end="url(#m)"/><path d="M60 140 q40 -26 80 0 t80 0" stroke="#2a9d6f" stroke-width="3" fill="none"/><text x="160" y="170" text-anchor="middle" font-size="9" fill="#6b7280">도형 · 드래그 · 변형 핸들을 직접 조립</text>`),
+cytoscape:S(`<rect width="320" height="180" fill="#fff"/><g stroke="#8b93a1" stroke-width="1.8"><path d="M160 90 L80 44 M160 90 L238 40 M160 90 L70 132 M160 90 L252 130 M80 44 L38 90 M238 40 L284 84 M70 132 L120 160 M252 130 L214 160 M80 44 L150 26"/></g><g fill="#fff" stroke="#4f46e5" stroke-width="2.4"><circle cx="160" cy="90" r="16" fill="#4f46e5"/><circle cx="80" cy="44" r="11"/><circle cx="238" cy="40" r="11"/><circle cx="70" cy="132" r="11"/><circle cx="252" cy="130" r="11"/><circle cx="38" cy="90" r="8"/><circle cx="284" cy="84" r="8"/><circle cx="120" cy="160" r="8"/><circle cx="214" cy="160" r="8"/><circle cx="150" cy="26" r="8"/></g>`)
+};
+/* ---------- 데이터 ---------- */
+const L=[
+{id:'reactflow',n:'React Flow (xyflow)',ty:'노드 기반 UI',lic:'MIT',lc:'ok',st:'약 38k',fit:5,sum:'카드를 {{노드}}, 화살표를 {{엣지}}로 올리는 라이브러리. 지금 우리가 만든 구조와 가장 비슷해요.',p:['커스텀 노드 = 카드 안에 어떤 React 내용이든 가능','미니맵·컨트롤 버튼·배경 격자·팬/줌 기본 제공','MIT, 개인 프로젝트는 후원 불필요'],c:['React 프로젝트(빌드)가 필요','수익 있는 조직은 Pro/후원 권장'],u:'https://github.com/xyflow/xyflow',x:{pz:'y',mm:'y',ct:'y',cd:'y',ed:'y',fr:'y'}},
+{id:'tldraw',n:'tldraw',ty:'무한 캔버스 SDK',lic:'자체 라이선스',lc:'warn',st:'약 50k',fit:4,sum:'피그마·화이트보드처럼 자유롭게 배치·그리기. 도형을 직접 만들어 넣을 수 있고, {{DOM}} 기반이라 HTML 내용을 넣기 좋아요.',p:['무한 캔버스 + 멀티터치/모바일 지원','커스텀 도형·도구·바인딩으로 확장','멀티플레이어 동기화 포함'],c:['오픈소스 라이선스가 아님 — 운영 환경은 {{SDK}} 라이선스 키 필요','개인 취미는 Hobby 라이선스(신청 필요), 상업은 유료'],u:'https://github.com/tldraw/tldraw',x:{pz:'y',mm:'q',ct:'q',cd:'y',ed:'q',fr:'t'}},
+{id:'svelteflow',n:'Svelte Flow',ty:'노드 기반 UI',lic:'MIT',lc:'ok',st:'xyflow 포함',fit:4,sum:'React Flow와 같은 팀의 Svelte 버전. React를 쓰지 않을 때 같은 방식.',p:['React Flow와 같은 개념(노드·엣지·미니맵)','가벼운 Svelte 앱에 적합'],c:['Svelte 프로젝트가 필요','자료·예시는 React Flow가 더 많음(추정)'],u:'https://github.com/xyflow/xyflow',x:{pz:'y',mm:'y',ct:'y',cd:'y',ed:'y',fr:'y'}},
+{id:'vueflow',n:'Vue Flow',ty:'노드 기반 UI',lic:'MIT',lc:'ok',st:'약 6.8k',fit:4,sum:'Vue 3용 플로우차트 컴포넌트. 줌·팬, 미니맵, 컨트롤, 배경을 제공해요.',p:['커스텀 노드/엣지, 드래그, 선택','TypeScript 지원'],c:['Vue 3 프로젝트가 필요','xyflow보다 커뮤니티가 작음'],u:'https://github.com/bcakmakoglu/vue-flow',x:{pz:'y',mm:'y',ct:'y',cd:'y',ed:'y',fr:'y'}},
+{id:'excalidraw',n:'Excalidraw',ty:'손그림 화이트보드',lic:'MIT',lc:'ok',st:'약 133k',fit:3,sum:'손으로 그린 듯한 화이트보드. React 컴포넌트(@excalidraw/excalidraw)로 앱에 넣을 수 있어요.',p:['무한 캔버스, 화살표·도형·이미지·라이브러리','PNG/SVG/JSON 내보내기, 다크 모드, 오프라인'],c:['"그리는" 도구라 14개 HTML 카드를 그대로 얹는 건 맞지 않음(추정)','손그림 스타일이 학습 가이드 톤과 안 맞을 수 있음'],u:'https://github.com/excalidraw/excalidraw',x:{pz:'y',mm:'q',ct:'q',cd:'q',ed:'y',fr:'y'}},
+{id:'jointjs',n:'JointJS',ty:'다이어그램 라이브러리',lic:'MPL 2.0 + 유료',lc:'warn',st:'약 5.4k',fit:3,sum:'SVG 기반 다이어그램. 코어는 {{MPL 2.0}} 오픈소스고, 스텐실·인스펙터·고급 레이아웃은 유료 JointJS+예요.',p:['커스텀 SVG 도형, 링크 커스터마이즈, 자동 레이아웃','터치 지원'],c:['편의 기능 상당수가 유료 JointJS+','React 연동도 유료 쪽'],u:'https://github.com/clientIO/joint',x:{pz:'q',mm:'t',ct:'q',cd:'y',ed:'y',fr:'t'}},
+{id:'blocksuite',n:'BlockSuite (AFFiNE 엔진)',ty:'에디터 프레임워크',lic:'MPL 2.0',lc:'ok',st:'약 6k',fit:2,sum:'문서 모드 + 엣지리스(캔버스) 모드를 가진 에디터 프레임워크. 웹 컴포넌트라 프레임워크에 구애받지 않아요.',p:['{{CRDT}} 기반 실시간 협업','문서와 캔버스를 한 데이터로 다룸'],c:['가이드 한 장에는 너무 큼(추정)','문서 에디터 중심이라 사용법 학습 비용'],u:'https://github.com/toeverything/blocksuite',x:{pz:'y',mm:'q',ct:'q',cd:'q',ed:'q',fr:'y'}},
+{id:'rete',n:'Rete.js',ty:'비주얼 프로그래밍',lic:'MIT',lc:'ok',st:'약 12k',fit:2,sum:'노드를 연결해 계산을 짜는 비주얼 프로그래밍 프레임워크. React/Vue/Angular/Svelte 지원.',p:['데이터플로우·컨트롤플로우 처리 엔진 포함','Rete Kit으로 빠른 시작'],c:['"계산을 실행하는" 용도라 우리 목적(설명 문서)엔 과함'],u:'https://github.com/retejs/rete',x:{pz:'q',mm:'q',ct:'q',cd:'q',ed:'y',fr:'y'}},
+{id:'litegraph',n:'LiteGraph.js',ty:'노드 그래프 에디터',lic:'MIT',lc:'ok',st:'약 8.1k',fit:2,sum:'의존성 없는 한 파일짜리 노드 에디터. ComfyUI가 이 계열을 써요. {{Canvas2D}}로 그려요.',p:['줌·팬·컨텍스트 메뉴, 노드 수백 개','TypeScript 지원, 서버(Node.js) 실행도 가능'],c:['픽셀로 그려서 HTML 카드/표를 넣기 어려움','노드 에디터 모양이 정해져 있음'],u:'https://github.com/jagenjo/litegraph.js',x:{pz:'y',mm:'q',ct:'q',cd:'t',ed:'y',fr:'y'}},
+{id:'konva',n:'Konva',ty:'2D 캔버스 프레임워크',lic:'MIT',lc:'ok',st:'약 14.8k',fit:2,sum:'도형·드래그·변형을 다루는 {{Canvas2D}} 프레임워크. 화이트보드·에디터를 직접 조립할 때 쓰는 재료예요.',p:['React/Vue/Svelte/Angular 바인딩','드래그·변형·애니메이션·내보내기'],c:['팬/줌·미니맵·화살표 연결을 다 직접 만들어야 함','HTML 카드를 넣을 수 없음'],u:'https://github.com/konvajs/konva',x:{pz:'t',mm:'t',ct:'t',cd:'t',ed:'t',fr:'y'}},
+{id:'cytoscape',n:'Cytoscape.js',ty:'그래프 이론 라이브러리',lic:'MIT',lc:'ok',st:'약 11.1k',fit:1,sum:'네트워크(생물·사회 관계망 등) 분석과 시각화용 그래프 라이브러리.',p:['대규모 관계 데이터에 강함, 확장 70개 이상','월간 기능 릴리스로 꾸준히 관리'],c:['관계망 분석이 목적이라 설명 카드 레이아웃과 거리가 멂'],u:'https://github.com/cytoscape/cytoscape.js',x:{pz:'q',mm:'q',ct:'q',cd:'q',ed:'y',fr:'y'}}
+];
+let filt='all';
+const F=[['all','전체'],['flow','노드·플로우형'],['board','화이트보드형'],['low','낮은 수준 / 특수 목적']];
+const TYPE={reactflow:'flow',svelteflow:'flow',vueflow:'flow',jointjs:'flow',rete:'flow',litegraph:'flow',tldraw:'board',excalidraw:'board',blocksuite:'board',konva:'low',cytoscape:'low'};
+function render(){
+ document.getElementById('flt').innerHTML=F.map(([k,l])=>`<button aria-pressed="${filt===k}" data-k="${k}">${l}</button>`).join('');
+ document.querySelectorAll('#flt button').forEach(b=>b.onclick=()=>{filt=b.dataset.k;render()});
+ document.getElementById('grid').innerHTML=L.filter(l=>filt==='all'||TYPE[l.id]===filt).map(l=>`<article class="c"><div class="viz">${V[l.id]}</div><div class="b"><h3>${l.n}<small>${l.ty}</small></h3><div class="badges"><span class="badge ${l.lc}">${T(l.lic.replace(/MPL 2\.0/,'{{MPL 2.0}}').replace(/^MIT/,'{{MIT}}'))}</span><span class="badge">★ ${l.st}</span></div><p class="sum">${T(l.sum)}</p><div class="fit">우리 용도 적합도 <span class="dots">${[1,2,3,4,5].map(i=>`<i class="${i<=l.fit?'on':''}"></i>`).join('')}</span></div><ul class="k p">${l.p.map(x=>`<li>${x}</li>`).join('')}</ul><ul class="k n">${l.c.map(x=>`<li>${T(x)}</li>`).join('')}</ul><a href="${l.u}" target="_blank" rel="noopener">GitHub에서 보기 ↗</a></div></article>`).join('');
+ bind();
+}
+const C=[['pz','팬·줌'],['mm','미니맵'],['ct','컨트롤 버튼'],['cd','커스텀 카드'],['ed','연결선(화살표)'],['fr','무료·개인']];
+const sym={y:'<span class="y">✓</span>',t:'<span class="t">△</span>',q:'<span class="q">?</span>'};
+document.getElementById('tb').innerHTML=`<thead><tr><th>도구</th>${C.map(c=>`<th>${c[1]}</th>`).join('')}<th>적합도</th></tr></thead><tbody>${L.map(l=>`<tr><td>${l.n}</td>${C.map(c=>`<td>${sym[l.x[c[0]]]}</td>`).join('')}<td>${'●'.repeat(l.fit)}<span style="opacity:.25">${'●'.repeat(5-l.fit)}</span></td></tr>`).join('')}</tbody>`;
+const tip=document.getElementById('tip');
+function bind(){document.querySelectorAll('.term').forEach(t=>{if(t._b)return;t._b=1;t.tabIndex=0;const s=()=>{tip.textContent=t.dataset.tip;const r=t.getBoundingClientRect();tip.style.opacity=1;tip.style.left=Math.max(8,Math.min(innerWidth-290,r.left))+'px';tip.style.top=Math.min(innerHeight-90,r.bottom+8)+'px'},h=()=>tip.style.opacity=0;t.addEventListener('mouseenter',s);t.addEventListener('focus',s);t.addEventListener('mouseleave',h);t.addEventListener('blur',h)})}
+render();bind();
+</script></body></html>

@@ -1,0 +1,128 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>직접 찍어보는 입력 · 실험형</title><style>
+:root{--bg:#fff;--ink:#1b1d21;--muted:#6b7280;--line:#e6e8ec;--soft:#f5f6f8;--accent:#4f46e5;--accent-soft:#eeedfd;--pos:#2a9d6f;--neg:#d6453d;--prev:#3b82f6;--gest:#f2b600;--slice:#14161a;--organ:#8d9299}
+@media(prefers-color-scheme:dark){:root{--bg:#0f1115;--ink:#e8eaee;--muted:#98a0ab;--line:#262a31;--soft:#171a20;--accent:#9a95ff;--accent-soft:#1f1e3a;--pos:#43c08a;--neg:#ff6b62;--prev:#6aa4ff}}
+*{box-sizing:border-box}html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.75 -apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo",Pretendard,sans-serif;-webkit-font-smoothing:antialiased}
+h1{font-size:clamp(28px,4vw,40px);line-height:1.2;letter-spacing:-.025em;margin:0 0 10px}
+h2{font-size:22px;letter-spacing:-.015em;margin:0 0 6px;line-height:1.3}
+.lead{color:var(--muted);font-size:18px;margin:0;max-width:640px}
+.term{border-bottom:1.5px dotted var(--muted);cursor:help}
+#tip{position:fixed;z-index:50;max-width:270px;background:var(--ink);color:var(--bg);font-size:14px;line-height:1.5;padding:8px 11px;border-radius:8px;pointer-events:none;opacity:0;transition:opacity .12s}
+.pos{color:var(--pos);font-weight:700}.neg{color:var(--neg);font-weight:700}.prev{color:var(--prev);font-weight:700}
+ul.k{margin:8px 0 0;padding:0;list-style:none}ul.k li{position:relative;padding-left:18px;margin:5px 0}ul.k li:before{content:"";position:absolute;left:3px;top:.72em;width:6px;height:6px;border-radius:50%;background:var(--accent)}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--bg)}
+.seg button{font:inherit;font-size:14.5px;border:0;background:transparent;color:var(--muted);padding:7px 14px;cursor:pointer}
+.seg button[aria-pressed=true]{background:var(--ink);color:var(--bg)}
+.seg button.p[aria-pressed=true]{background:var(--pos);color:#fff}.seg button.n[aria-pressed=true]{background:var(--neg);color:#fff}
+.btn{font:inherit;font-size:14.5px;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:10px;padding:7px 14px;cursor:pointer}.btn:hover{border-color:var(--accent);color:var(--accent)}
+.note{font-size:13.5px;color:var(--muted)}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+.wrap{max-width:1120px;margin:0 auto;padding:48px 24px 100px}
+.lab{display:grid;grid-template-columns:minmax(0,7fr) minmax(0,5fr);gap:28px;margin-top:26px;align-items:start}
+.panel{background:var(--soft);border:1px solid var(--line);border-radius:18px;padding:16px}
+.bar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+#cv{width:100%;height:auto;display:block;border-radius:12px;touch-action:none;cursor:crosshair;background:var(--slice)}
+.hint{font-size:14.5px;color:var(--muted);margin:10px 2px 0}
+.rule{background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:12px 16px;margin-top:12px}
+.rule b.t{display:block;font-size:15px;color:var(--accent);margin-bottom:2px}
+.rule ul.k{margin-top:4px}
+.chs{display:grid;gap:7px}
+.ch{display:grid;grid-template-columns:104px 1fr auto;gap:10px;align-items:center;background:var(--bg);border:1.5px solid var(--line);border-radius:11px;padding:4px 10px;cursor:pointer;text-align:left;font:inherit;color:inherit;transition:border-color .2s,box-shadow .2s}
+.ch:hover{border-color:var(--muted)}
+.ch[aria-pressed=true]{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.ch.flash{animation:fl .9s}
+@keyframes fl{0%{box-shadow:0 0 0 0 var(--gest)}40%{box-shadow:0 0 0 6px color-mix(in srgb,var(--gest) 55%,transparent)}100%{box-shadow:none}}
+.ch .nm{font-size:14px;font-weight:700;line-height:1.3}.ch .nm small{display:block;font-weight:500;color:var(--muted);font-size:12.5px}
+.ch canvas{width:100%;height:auto;border-radius:6px;background:var(--slice);display:block;max-width:78px}
+.ch .cnt{font:600 12.5px ui-monospace,Menlo,monospace;color:var(--muted);text-align:right;min-width:42px}
+.dot{display:inline-block;width:9px;height:9px;border-radius:3px;margin-right:6px}
+@media(max-width:900px){.lab{grid-template-columns:1fr}}
+</style></head><body>
+<div class="wrap"><h1>직접 찍어서 보는 ‘입력 → 숫자 지도’</h1>
+<p class="lead">왼쪽 슬라이스에 점·상자·붓·올가미로 직접 그려 보세요. 내가 한 동작이 오른쪽 <span class="term" data-tip="신경망에 넣는 "숫자 지도 한 겹". 포토샵의 레이어처럼 여러 장을 겹쳐 한 번에 입력해요.">채널</span>들에 어떤 숫자로 기록되는지 바로 보입니다.</p>
+<div class="lab"><div class="panel">
+<div class="bar"><div class="seg" id="tool"><button aria-pressed="true" data-v="point">점</button><button aria-pressed="false" data-v="box">상자</button><button aria-pressed="false" data-v="scribble">붓</button><button aria-pressed="false" data-v="lasso">올가미</button></div>
+<div class="seg" id="sign"><button class="p" aria-pressed="true" data-v="0">+ Positive</button><button class="n" aria-pressed="false" data-v="1">− Negative</button></div>
+<button class="btn" id="clr">모두 지우기</button></div>
+<canvas id="cv" width="408" height="336" aria-label="CT 슬라이스. 여기에 그려 보세요"></canvas>
+<p class="hint" id="hint">슬라이스를 클릭해 보세요.</p>
+<div class="bar" style="margin:10px 0 0"><label class="note"><input type="checkbox" id="nums" checked> 선택한 채널의 숫자 보기</label><button class="btn" id="ex">예시: 직전 결과(채널 0) 채우기</button></div>
+</div>
+<div><div class="panel"><div class="chs" id="chs"></div></div>
+<div class="rule" id="rule"></div></div></div>
+<p class="note" style="margin-top:18px">이 화면은 ‘입력이 숫자 지도로 바뀌는 단계’만 재현합니다(점 모양 값은 원본 도식의 실제 값, 상자·붓·올가미는 설명대로 1로 채움). 신경망 출력은 계산하지 않고, 채널 0의 마스크는 예시입니다. 칸 하나 = 복셀 하나로 단순화했습니다.</p></div>
+<div id="tip" role="tooltip"></div><script>
+const tip=document.getElementById('tip');
+function bindTips(root=document){root.querySelectorAll('.term').forEach(t=>{if(t._b)return;t._b=1;t.tabIndex=0;const show=()=>{tip.textContent=t.dataset.tip;const r=t.getBoundingClientRect();tip.style.opacity=1;tip.style.left=Math.max(8,Math.min(innerWidth-280,r.left))+'px';tip.style.top=Math.min(innerHeight-80,r.bottom+8)+'px'};const hide=()=>tip.style.opacity=0;t.addEventListener('mouseenter',show);t.addEventListener('focus',show);t.addEventListener('mouseleave',hide);t.addEventListener('blur',hide)})}
+const BALL=[[0, 0, 0, 0, 0.2, 0, 0, 0, 0], [0, 0, 0.2, 0.2, 0.3, 0.2, 0.2, 0, 0], [0, 0.2, 0.3, 0.5, 0.5, 0.5, 0.3, 0.2, 0], [0, 0.2, 0.5, 0.7, 0.8, 0.7, 0.5, 0.2, 0], [0.2, 0.3, 0.5, 0.8, 1.0, 0.8, 0.5, 0.3, 0.2], [0, 0.2, 0.5, 0.7, 0.8, 0.7, 0.5, 0.2, 0], [0, 0.2, 0.3, 0.5, 0.5, 0.5, 0.3, 0.2, 0], [0, 0, 0.2, 0.2, 0.3, 0.2, 0.2, 0, 0], [0, 0, 0, 0, 0.2, 0, 0, 0, 0]];
+const ORGAN='M36,125 C45,45 165,25 246,75 C285,112.5 240,195 150,210 C75,220 30,180 36,125Z';
+const VESSEL='M60,125 C75,75 150,55 216,85';
+
+const W=17,H=14,C=24,cv=document.getElementById('cv'),ctx=cv.getContext('2d');
+const sx=C*W/300,sy=C*H/250;
+const organ=new Path2D(ORGAN),vessel=new Path2D(VESSEL);
+const NAMES=[['CT 영상','입력 영상'],['0','직전 결과'],['1','상자·올가미 +'],['2','상자·올가미 −'],['3','점 +'],['4','점 −'],['5','붓 +'],['6','붓 −']];
+const MAP={point:[4,5],box:[2,3],lasso:[2,3],scribble:[6,7]}; // row idx
+const RULE={
+ point:['점','클릭한 둘레에 <b>공 모양</b> 숫자 덩어리 (반지름 4칸, 가운데 1.0 → 가장자리 약 0.2)','채널 3(+) / 4(−)에 <b>더 큰 값만 남기며</b> 덮어씀'],
+ box:['상자','상자 <b>안쪽 전부를 1</b>로 채움','그린 슬라이스 한 장에만 (두께 1칸)','채널 1(+) / 2(−) — 올가미와 공유'],
+ scribble:['붓','붓이 <b>새로 지나간 칸만 1</b>로 기록','이미 칠한 칸은 그대로 두고 이어서 추가','채널 5(+) / 6(−)'],
+ lasso:['올가미','그린 <b>닫힌 선의 안쪽</b>을 다각형으로 채움 → 1','채널 1(+) / 2(−) — 상자와 공유']
+};
+let tool='point',sign=0,view=4,showNums=true,ch=Array.from({length:8},()=>new Float32Array(W*H)),flashRow=-1,g=null,mini=[];
+// 미니 지도 + 채널 패널
+const chs=document.getElementById('chs');
+NAMES.forEach((n,i)=>{const b=document.createElement('button');b.className='ch';b.dataset.i=i;b.innerHTML=`<div class="nm"><span class="dot" style="background:${i==0?'#9aa0a8':i==1?'var(--prev)':i%2==0?'var(--pos)':'var(--neg)'}"></span>${n[0]}<small>${n[1]}</small></div><canvas width="102" height="84"></canvas><span class="cnt">0칸</span>`;b.onclick=()=>{view=i;draw();paintPanel()};chs.appendChild(b);mini.push(b)});
+function inOrgan(cx,cy){return ctx.isPointInPath(organ,(cx+.5)*C/sx,(cy+.5)*C/sy)}
+// isPointInPath는 변환 영향을 받으므로 스케일 적용 상태에서 호출
+function organCell(cx,cy){ctx.save();ctx.setTransform(1,0,0,1,0,0);const r=ctx.isPointInPath(organ,(cx+.5)*C/sx,(cy+.5)*C/sy);ctx.restore();return r}
+function colorOf(i,v){const c=i==1?[59,130,246]:i%2==0?[42,157,111]:[214,69,61];return `rgba(${c},${.15+v*.75})`}
+function drawSlice(c,cell,small){const k=cell/C;c.save();c.scale(k,k);c.fillStyle=getComputedStyle(document.documentElement).getPropertyValue('--slice')||'#14161a';c.fillRect(0,0,C*W,C*H);c.scale(sx,sy);c.fillStyle='#8d9299';c.fill(organ);c.strokeStyle='rgba(181,185,190,.6)';c.lineWidth=5;c.stroke(vessel);c.restore()}
+function draw(){
+ ctx.clearRect(0,0,408,336);drawSlice(ctx,C);
+ ctx.strokeStyle='rgba(255,255,255,.07)';ctx.lineWidth=1;for(let i=1;i<W;i++){ctx.beginPath();ctx.moveTo(i*C,0);ctx.lineTo(i*C,H*C);ctx.stroke()}for(let j=1;j<H;j++){ctx.beginPath();ctx.moveTo(0,j*C);ctx.lineTo(W*C,j*C);ctx.stroke()}
+ if(view>0){const a=ch[view];for(let y=0;y<H;y++)for(let x=0;x<W;x++){const v=a[y*W+x];if(!v)continue;ctx.fillStyle=colorOf(view,v);ctx.fillRect(x*C,y*C,C,C);if(showNums){ctx.fillStyle='#fff';ctx.font='700 10px ui-monospace,Menlo,monospace';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(v>=1?'1':v.toFixed(1),x*C+C/2,y*C+C/2)}}}
+ // 제스처(노란색)
+ ctx.strokeStyle='#f2b600';ctx.fillStyle='#f2b600';ctx.lineWidth=3;
+ if(g){if(g.t=='point'){ctx.lineWidth=4;ctx.beginPath();ctx.arc(g.px,g.py,10,0,7);ctx.stroke();ctx.beginPath();ctx.arc(g.px,g.py,2.5,0,7);ctx.fill()}
+  if(g.t=='box'){ctx.strokeRect(g.x0,g.y0,g.x1-g.x0,g.y1-g.y0)}
+  if(g.t=='scribble'||g.t=='lasso'){ctx.lineJoin=ctx.lineCap='round';ctx.beginPath();g.pts.forEach((p,i)=>i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]));if(g.t=='lasso'){ctx.setLineDash([2,7]);if(g.done)ctx.closePath()}ctx.stroke();ctx.setLineDash([])}}
+ ctx.textAlign='start'; ctx.textBaseline='alphabetic';
+}
+function paintPanel(){mini.forEach((b,i)=>{const c=b.querySelector('canvas').getContext('2d');c.clearRect(0,0,102,84);if(i==0){drawSlice(c,6)}else{c.fillStyle='#14161a';c.fillRect(0,0,102,84);let n=0;const a=ch[i];for(let y=0;y<H;y++)for(let x=0;x<W;x++){const v=a[y*W+x];if(v){n++;c.fillStyle=colorOf(i,v);c.fillRect(x*6,y*6,6,6)}}b.querySelector('.cnt').textContent=n+'칸'}b.setAttribute('aria-pressed',i==view)});}
+function flash(i){const b=mini[i];b.classList.remove('flash');void b.offsetWidth;b.classList.add('flash')}
+function rowFor(){return MAP[tool][sign]}
+function put(i,x,y,v){if(x<0||y<0||x>=W||y>=H)return;const a=ch[i];if(v>a[y*W+x])a[y*W+x]=v}
+function done(i){view=i;flash(i);draw();paintPanel()}
+const cell=e=>{const r=cv.getBoundingClientRect(),k=408/r.width;const px=(e.clientX-r.left)*k,py=(e.clientY-r.top)*k;return{px,py,cx:Math.min(W-1,Math.max(0,Math.floor(px/C))),cy:Math.min(H-1,Math.max(0,Math.floor(py/C)))}};
+let drag=false;
+cv.addEventListener('pointerdown',e=>{cv.setPointerCapture(e.pointerId);const p=cell(e),i=rowFor();drag=true;
+ if(tool=='point'){g={t:'point',px:p.px,py:p.py};for(let r=0;r<9;r++)for(let c=0;c<9;c++)put(i,p.cx+c-4,p.cy+r-4,BALL[r][c]);drag=false;done(i);setHint('point',p)}
+ if(tool=='box'){g={t:'box',x0:p.px,y0:p.py,x1:p.px,y1:p.py}}
+ if(tool=='scribble'){g={t:'scribble',pts:[[p.px,p.py]],seen:new Set()};stroke(p,i)}
+ if(tool=='lasso'){g={t:'lasso',pts:[[p.px,p.py]]}}
+ draw()});
+function stroke(p,i){const k=p.cy*W+p.cx;if(!g.seen.has(k)){g.seen.add(k);put(i,p.cx,p.cy,1)}}
+cv.addEventListener('pointermove',e=>{if(!drag)return;const p=cell(e),i=rowFor();
+ if(tool=='box'){g.x1=p.px;g.y1=p.py}
+ if(tool=='scribble'){const l=g.pts[g.pts.length-1];const n=Math.ceil(Math.hypot(p.px-l[0],p.py-l[1])/6)||1;for(let s=1;s<=n;s++){const x=l[0]+(p.px-l[0])*s/n,y=l[1]+(p.py-l[1])*s/n;stroke({cx:Math.min(W-1,Math.max(0,Math.floor(x/C))),cy:Math.min(H-1,Math.max(0,Math.floor(y/C)))},i)}g.pts.push([p.px,p.py]);view=i;paintPanel()}
+ if(tool=='lasso'){g.pts.push([p.px,p.py])}
+ draw()});
+function end(){if(!drag)return;drag=false;const i=rowFor();
+ if(tool=='box'){const x0=Math.floor(Math.min(g.x0,g.x1)/C),x1=Math.floor(Math.max(g.x0,g.x1)/C),y0=Math.floor(Math.min(g.y0,g.y1)/C),y1=Math.floor(Math.max(g.y0,g.y1)/C);for(let y=y0;y<=y1;y++)for(let x=x0;x<=x1;x++)put(i,x,y,1);setHint('box',{n:(x1-x0+1)*(y1-y0+1)})}
+ if(tool=='scribble'){setHint('scribble',{n:g.seen.size})}
+ if(tool=='lasso'){g.done=true;let n=0;const P=g.pts;for(let y=0;y<H;y++)for(let x=0;x<W;x++){const cx=(x+.5)*C,cy=(y+.5)*C;let ins=false;for(let a=0,b=P.length-1;a<P.length;b=a++){if((P[a][1]>cy)!=(P[b][1]>cy)&&cx<(P[b][0]-P[a][0])*(cy-P[a][1])/(P[b][1]-P[a][1])+P[a][0])ins=!ins}if(ins){put(i,x,y,1);n++}}setHint('lasso',{n})}
+ done(i)}
+cv.addEventListener('pointerup',end);cv.addEventListener('pointercancel',end);
+function setHint(t,p){const row=rowFor(),nm=NAMES[row];const msg={point:`점 → 채널 ${nm[0]}(${nm[1]})에 공 모양 값 기록. 가운데 칸 1.0.`,box:`상자 안 ${p.n}칸을 모두 1로 → 채널 ${nm[0]}(${nm[1]})`,scribble:`붓이 지나간 ${p.n}칸만 1로 → 채널 ${nm[0]}(${nm[1]})`,lasso:`닫힌 선 안쪽 ${p.n}칸을 1로 → 채널 ${nm[0]}(${nm[1]})`}[t];document.getElementById('hint').textContent=msg}
+function paintRule(){const r=RULE[tool];document.getElementById('rule').innerHTML=`<b class="t">${r[0]}은(는) 이렇게 계산해요</b><ul class="k">${r.slice(1).map(x=>`<li>${x}</li>`).join('')}</ul>`;document.getElementById('hint').textContent={point:'슬라이스를 클릭해 보세요.',box:'드래그해서 상자를 그려 보세요.',scribble:'드래그해서 붓으로 칠해 보세요.',lasso:'드래그해서 닫힌 모양을 그려 보세요.'}[tool]}
+function seg(id,fn){document.querySelectorAll(`#${id} button`).forEach(b=>b.onclick=()=>{document.querySelectorAll(`#${id} button`).forEach(x=>x.setAttribute('aria-pressed',x===b));fn(b.dataset.v)})}
+seg('tool',v=>{tool=v;g=null;view=rowFor();paintRule();draw();paintPanel()});
+seg('sign',v=>{sign=+v;g=null;view=rowFor();draw();paintPanel()});
+document.getElementById('clr').onclick=()=>{ch=ch.map(()=>new Float32Array(W*H));g=null;view=rowFor();draw();paintPanel()};
+document.getElementById('nums').onchange=e=>{showNums=e.target.checked;draw()};
+document.getElementById('ex').onclick=()=>{for(let y=0;y<H;y++)for(let x=0;x<W;x++)if(organCell(x,y))ch[1][y*W+x]=1;view=1;flash(1);draw();paintPanel();document.getElementById('hint').textContent='예시: 직전 계산에서 나온 마스크가 채널 0에 들어 있는 모습이에요.'};
+paintRule();draw();paintPanel();
+
+bindTips();</script></body></html>

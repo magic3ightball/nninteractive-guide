@@ -1,0 +1,121 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>nnInteractive 한 판 정리 · 단계 펼침형</title><style>
+:root{--bg:#fff;--ink:#1b1d21;--muted:#6b7280;--line:#e6e8ec;--soft:#f5f6f8;--accent:#4f46e5;--accent-soft:#eeedfd;--pos:#2a9d6f;--neg:#d6453d;--prev:#3b82f6;--gest:#f2b600;--slice:#14161a;--organ:#8d9299}
+@media(prefers-color-scheme:dark){:root{--bg:#0f1115;--ink:#e8eaee;--muted:#98a0ab;--line:#262a31;--soft:#171a20;--accent:#9a95ff;--accent-soft:#1f1e3a;--pos:#43c08a;--neg:#ff6b62;--prev:#6aa4ff}}
+*{box-sizing:border-box}html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.75 -apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo",Pretendard,sans-serif;-webkit-font-smoothing:antialiased}
+h1{font-size:clamp(28px,4vw,40px);line-height:1.2;letter-spacing:-.025em;margin:0 0 10px}
+h2{font-size:22px;letter-spacing:-.015em;margin:0 0 6px;line-height:1.3}
+.lead{color:var(--muted);font-size:18px;margin:0;max-width:640px}
+.term{border-bottom:1.5px dotted var(--muted);cursor:help}
+#tip{position:fixed;z-index:50;max-width:270px;background:var(--ink);color:var(--bg);font-size:14px;line-height:1.5;padding:8px 11px;border-radius:8px;pointer-events:none;opacity:0;transition:opacity .12s}
+.pos{color:var(--pos);font-weight:700}.neg{color:var(--neg);font-weight:700}.prev{color:var(--prev);font-weight:700}
+ul.k{margin:8px 0 0;padding:0;list-style:none}ul.k li{position:relative;padding-left:18px;margin:5px 0}ul.k li:before{content:"";position:absolute;left:3px;top:.72em;width:6px;height:6px;border-radius:50%;background:var(--accent)}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--bg)}
+.seg button{font:inherit;font-size:14.5px;border:0;background:transparent;color:var(--muted);padding:7px 14px;cursor:pointer}
+.seg button[aria-pressed=true]{background:var(--ink);color:var(--bg)}
+.seg button.p[aria-pressed=true]{background:var(--pos);color:#fff}.seg button.n[aria-pressed=true]{background:var(--neg);color:#fff}
+.btn{font:inherit;font-size:14.5px;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:10px;padding:7px 14px;cursor:pointer}.btn:hover{border-color:var(--accent);color:var(--accent)}
+.note{font-size:13.5px;color:var(--muted)}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+.wrap{max-width:980px;margin:0 auto;padding:48px 24px 120px}
+.flow{display:flex;align-items:stretch;gap:0;margin:28px 0 0}
+.node{flex:1;min-width:0;border:1.5px solid var(--line);background:var(--bg);border-radius:14px;padding:12px 12px 12px;cursor:pointer;text-align:left;font:inherit;color:inherit;transition:all .2s;position:relative}
+.node .n{font:700 12px/1 ui-monospace,Menlo,monospace;color:var(--muted)}
+.node .l{font-weight:800;font-size:16px;line-height:1.3;margin-top:6px}
+.node .s{font-size:13px;color:var(--muted);line-height:1.4;margin-top:2px}
+.node:hover{border-color:var(--muted)}
+.node[aria-selected=true]{border-color:var(--accent);background:var(--accent-soft);box-shadow:0 0 0 3px var(--accent-soft)}
+.node[aria-selected=true] .n{color:var(--accent)}
+.node.seen:not([aria-selected=true]) .n:after{content:" ✓";color:var(--pos)}
+.arrow{align-self:center;width:26px;text-align:center;color:var(--muted);font-size:18px;flex:none}
+.detail{margin-top:18px;border:1px solid var(--line);border-radius:18px;background:var(--soft);padding:26px 28px}
+.detail h2{font-size:26px}
+.sum{font-size:19px;font-weight:700;margin:2px 0 14px;max-width:680px}
+.cols{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:28px;align-items:start}
+.vis{background:var(--bg);border:1px solid var(--line);border-radius:14px;padding:14px;display:flex;flex-direction:column;align-items:center;gap:8px;min-height:240px;justify-content:center}
+.vis svg{width:100%;max-width:340px;height:auto;display:block}
+.tools{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px;width:100%}
+.tools button{font:inherit;font-size:14px;border:1.5px solid var(--line);background:var(--bg);color:var(--ink);border-radius:10px;padding:6px 4px;cursor:pointer}
+.tools button[aria-pressed=true]{border-color:var(--accent);background:var(--accent-soft);color:var(--accent);font-weight:700}
+details{margin-top:14px;border-top:1px solid var(--line);padding-top:10px}
+summary{cursor:pointer;font-weight:700;font-size:15px;color:var(--accent);list-style:none}
+summary::-webkit-details-marker{display:none}
+summary:before{content:"▸ ";transition:transform .2s;display:inline-block}details[open] summary:before{transform:rotate(90deg)}
+details .a{margin-top:8px;font-size:15.5px}
+.quiz{background:var(--bg);border:1px dashed var(--accent);border-radius:12px;padding:12px 16px;margin-top:16px}
+.quiz .q{font-weight:700}.quiz .ans{display:none;margin-top:8px;padding-top:8px;border-top:1px solid var(--line)}.quiz.open .ans{display:block}
+.nav{display:flex;justify-content:space-between;margin-top:18px}
+.src{font:13px ui-monospace,Menlo,monospace;color:var(--muted)}
+.rows{display:grid;gap:5px;width:100%;max-width:340px}
+.rw{display:flex;justify-content:space-between;align-items:center;font-size:14px;border-radius:8px;padding:5px 10px;border:1.2px solid;transition:all .2s}
+@media(max-width:820px){.flow{flex-wrap:wrap;gap:8px}.arrow{display:none}.node{flex:1 1 30%}.cols{grid-template-columns:1fr}.detail{padding:20px 16px}}
+</style></head><body>
+<div class="wrap"><h1>nnInteractive 한 판 정리</h1>
+<p class="lead">5단계 중 궁금한 단계를 눌러 보세요. 처음엔 한 줄 요약만, ‘더 보기’를 펼치면 자세한 내용이 나와요. 각 단계 끝에는 스스로 설명해 보는 복습 질문이 있습니다.</p>
+<div class="flow" id="flow" role="tablist"></div>
+<div class="detail" id="detail" role="tabpanel"></div>
+<div class="nav"><button class="btn" id="prev">← 이전 단계</button><button class="btn" id="next">다음 단계 →</button></div>
+<p class="note" style="margin-top:22px">프로토타입 범위: 5단계 요약 구조와 ‘입력’·‘숫자 지도’ 단계의 도식을 구현했습니다. 나머지 단계 도식도 같은 틀로 이어 붙일 수 있어요.</p></div>
+<div id="tip" role="tooltip"></div><script>
+const tip=document.getElementById('tip');
+function bindTips(root=document){root.querySelectorAll('.term').forEach(t=>{if(t._b)return;t._b=1;t.tabIndex=0;const show=()=>{tip.textContent=t.dataset.tip;const r=t.getBoundingClientRect();tip.style.opacity=1;tip.style.left=Math.max(8,Math.min(innerWidth-280,r.left))+'px';tip.style.top=Math.min(innerHeight-80,r.bottom+8)+'px'};const hide=()=>tip.style.opacity=0;t.addEventListener('mouseenter',show);t.addEventListener('focus',show);t.addEventListener('mouseleave',hide);t.addEventListener('blur',hide)})}
+const BALL=[[0, 0, 0, 0, 0.2, 0, 0, 0, 0], [0, 0, 0.2, 0.2, 0.3, 0.2, 0.2, 0, 0], [0, 0.2, 0.3, 0.5, 0.5, 0.5, 0.3, 0.2, 0], [0, 0.2, 0.5, 0.7, 0.8, 0.7, 0.5, 0.2, 0], [0.2, 0.3, 0.5, 0.8, 1.0, 0.8, 0.5, 0.3, 0.2], [0, 0.2, 0.5, 0.7, 0.8, 0.7, 0.5, 0.2, 0], [0, 0.2, 0.3, 0.5, 0.5, 0.5, 0.3, 0.2, 0], [0, 0, 0.2, 0.2, 0.3, 0.2, 0.2, 0, 0], [0, 0, 0, 0, 0.2, 0, 0, 0, 0]];
+const ORGAN='M36,125 C45,45 165,25 246,75 C285,112.5 240,195 150,210 C75,220 30,180 36,125Z';
+const VESSEL='M60,125 C75,75 150,55 216,85';
+
+const TOOLS={
+ point:{n:'점',t:'클릭한 한 곳',v:'<circle cx="150" cy="105" r="13" fill="none" stroke="var(--gest)" stroke-width="5"/><circle cx="150" cy="105" r="3" fill="var(--gest)"/>',d:'클릭한 둘레에 공 모양 숫자 덩어리'},
+ box:{n:'상자',t:'상자 안쪽 전부',v:'<rect x="90" y="60" width="120" height="90" fill="none" stroke="var(--gest)" stroke-width="5"/>',d:'안쪽 전부를 1로 채움 (한 슬라이스)'},
+ scribble:{n:'붓',t:'붓이 지난 곳',v:'<path d="M70 120 C95 60 125 150 150 90 S190 70 220 85" fill="none" stroke="var(--gest)" stroke-width="6" stroke-linecap="round"/>',d:'새로 지나간 칸만 1로 기록'},
+ lasso:{n:'올가미',t:'닫은 선 안쪽',v:'<path d="M85 105 C80 60 150 50 190 70 C225 95 190 150 140 150 C105 150 88 130 85 105Z" fill="none" stroke="var(--gest)" stroke-width="5" stroke-dasharray="3 9" stroke-linecap="round"/>',d:'닫힌 선 안쪽을 다각형으로 채움'}
+};
+let tool='point';
+const slice=(inner)=>`<svg viewBox="0 0 300 210" role="img" aria-label="CT 슬라이스 예시"><rect width="300" height="210" rx="12" fill="var(--slice)"/><path d="${ORGAN}" transform="translate(0,-18) scale(1,.92)" fill="var(--organ)"/>${inner}</svg>`;
+function ballSVG(){let o='';for(let r=0;r<9;r++)for(let c=0;c<9;c++){const v=BALL[r][c];o+=`<rect x="${c*26}" y="${r*26}" width="26" height="26" fill="var(--bg)" stroke="var(--line)"/>`;if(v)o+=`<rect x="${c*26}" y="${r*26}" width="26" height="26" fill="var(--pos)" fill-opacity="${.12+v*.78}"/><text x="${c*26+13}" y="${r*26+17}" text-anchor="middle" font-size="11" font-weight="700" fill="${v>.65?'#fff':'var(--ink)'}">${v.toFixed(1)}</text>`}return `<svg viewBox="0 0 234 234" role="img" aria-label="공 모양 숫자 지도">${o}</svg>`}
+const ROWS=[['CT 영상','#9aa0a8'],['0  직전 결과','var(--prev)'],['1  상자·올가미 +','var(--pos)'],['2  상자·올가미 −','var(--neg)'],['3  점 +','var(--pos)'],['4  점 −','var(--neg)'],['5  붓 +','var(--pos)'],['6  붓 −','var(--neg)']];
+const HL={point:[4,5],box:[2,3],lasso:[2,3],scribble:[6,7]};
+function rowsHTML(){const h=HL[tool];return `<div class="rows">${ROWS.map((r,i)=>{const on=h.includes(i);return `<div class="rw" style="border-color:${r[1]};background:color-mix(in srgb,${r[1]} ${on?'22%':'7%'},transparent);font-weight:${on?800:500};opacity:${on?1:.55}"><span>${r[0]}</span>${on?'<span style="font-size:12px">← 이 도구가 기록</span>':''}</div>`}).join('')}</div>`}
+const STEPS=[
+{n:'입력',s:'내가 하는 일',h:'2D 슬라이스 위에 도구로 표시한다',sum:'점·상자·붓·올가미 중 하나로 “여기가 간이야 / 아니야”를 알려 준다.',
+ vis:()=>`<div class="tools" id="tools">${Object.entries(TOOLS).map(([k,t])=>`<button data-k="${k}" aria-pressed="${k==tool}">${t.n}</button>`).join('')}</div>${slice(TOOLS[tool].v)}<div class="note">${TOOLS[tool].t}</div>`,
+ pts:()=>[`CT는 3D지만 화면에는 {{슬라이스}} 한 장만 보임`,`선택한 도구: <b>${TOOLS[tool].n}</b> — ${TOOLS[tool].d}`,`모든 도구에 <span class="pos">Positive</span>(포함) / <span class="neg">Negative</span>(제외) 두 가지가 있음`],
+ more:`입력 좌표는 화면의 2D 위치가 아니라 3D {{복셀}} 좌표로 바뀐다. 그래서 점 하나도 앞뒤 슬라이스에 영향을 준다.`,
+ q:'점·상자·붓·올가미의 차이를 한 줄씩 말해 보세요.',a:'점=클릭한 둘레 공 모양, 상자=안쪽 전부 1, 붓=새로 지난 칸만 1, 올가미=닫은 선 안쪽 1. 모두 Positive/Negative가 있다.',src:'SlicerNNInteractive.py'},
+{n:'숫자 지도',s:'입력 → 7채널',h:'내 입력을 숫자 지도로 바꿔 {{채널}}에 기록한다',sum:'도구마다 정해진 채널이 있고, Positive/Negative도 다른 채널에 기록된다.',
+ vis:()=>`<div class="tools" id="tools">${Object.entries(TOOLS).map(([k,t])=>`<button data-k="${k}" aria-pressed="${k==tool}">${t.n}</button>`).join('')}</div>${tool=='point'?ballSVG():slice(TOOLS[tool].v)}<div class="note">${tool=='point'?'한 슬라이스 단면의 실제 값 (가운데 1.0)':'칠해진 부분이 1로 기록됨'}</div>`,
+ pts:()=>tool=='point'?[`반지름 <b>4칸</b>의 공 (9×9×9)`,`가운데 1.0 → 가장자리 약 0.2 ({{정규화}})`,`채널 3(+) / 4(−)에 <b>더 큰 값만</b> 남기며 덮어씀`]:[TOOLS[tool].d,`기록 채널: <b>${HL[tool].map(i=>ROWS[i][0].split('  ')[0]).join(' / ')}</b> (+ / −)`,`이미 값이 있으면 더 큰 값만 남김`],
+ more:`7채널 = 직전 결과(0) + 상자·올가미(+/−) + 점(+/−) + 붓(+/−). 여기에 CT 영상 1장이 더해져 신경망에는 8채널이 들어간다.`,extra:()=>`<div style="margin-top:12px">${rowsHTML()}</div>`,
+ q:'Negative 점을 찍으면 어느 채널에 기록되고, 그 값은 어떻게 생겼나요?',a:'채널 4. Positive와 같은 공 모양(가운데 1.0)이고, 채널만 다르다.',src:'inference_session.py · interaction/point.py'},
+{n:'신경망',s:'8채널 → 마스크',h:'{{신경망}}이 CT와 숫자 지도를 한 번에 읽는다',sum:'클릭 위치 중심의 192³ {{조각}}만 잘라 계산한다.',
+ vis:()=>`<svg viewBox="0 0 300 210"><rect width="300" height="210" rx="12" fill="var(--slice)"/><path d="${ORGAN}" transform="translate(0,-18) scale(1,.92)" fill="var(--organ)"/><rect x="70" y="30" width="150" height="130" fill="none" stroke="var(--gest)" stroke-width="3" stroke-dasharray="7 5"/><circle cx="150" cy="95" r="5" fill="var(--gest)"/></svg><div class="note">노란 점선 = 192×192×192 조각, 중심 = 마지막 입력</div>`,
+ pts:()=>[`CT 1장 + 채널 7장 = <b>8채널</b> 입력`,`모델: ResEnc U-Net (nnU-Net 계열)`,`출력: 배경/대상 2종류 → 큰 쪽을 골라 0/1 {{마스크}}`],
+ more:`CT는 0이 아닌 영역의 평균·표준편차로 z-점수 정규화한다(간격은 그대로 두고 복셀 단위 계산).`,
+ q:'신경망은 CT 전체를 한 번에 읽나요?',a:'아니요. 마지막 입력 위치 중심의 192×192×192 조각만 잘라서 읽는다.',src:'inference_session.py'},
+{n:'마스크',s:'결과',h:'간 마스크(0 / 1)가 Slicer에 칠해진다',sum:'배경은 0, 간은 1. Slicer의 Liver 세그먼트로 들어간다.',
+ vis:()=>`<svg viewBox="0 0 300 210"><rect width="300" height="210" rx="12" fill="var(--slice)"/><path d="${ORGAN}" transform="translate(0,-18) scale(1,.92)" fill="var(--pos)" fill-opacity=".75"/></svg><div class="note">초록 = 마스크 1 (간)</div>`,
+ pts:()=>[`출력은 0/1 이진 {{마스크}}`,`Slicer의 <b>Liver</b> 세그먼트에 칠해짐`,`한 번의 클릭은 ‘작은 공’일 뿐, 간 전체로 퍼지는 건 신경망이 한다`],more:`결과 조각을 전체 CT 자리에 붙여 넣는다.`,
+ q:'점 하나로 간 전체가 칠해지는 이유는?',a:'점은 작은 공 모양 힌트일 뿐이고, 간의 모양을 퍼뜨리는 건 신경망이다.',src:'SlicerNNInteractive.py'},
+{n:'되먹임',s:'다음 계산으로',h:'결과가 다음 계산의 입력이 된다',sum:'마스크는 채널 0(직전 결과)에 저장된다. 결과가 조각 테두리에 닿으면 {{AutoZoom}}.',
+ vis:()=>`<svg viewBox="0 0 300 210"><defs><marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="14" orient="auto"><path d="M0 0L10 5L0 10z" fill="context-stroke"/></marker></defs><rect x="10" y="20" width="110" height="46" rx="10" fill="var(--prev)" fill-opacity=".15" stroke="var(--prev)" stroke-width="2"/><text x="65" y="48" text-anchor="middle" font-size="14" font-weight="700" fill="var(--ink)">채널 0 직전 결과</text><rect x="10" y="140" width="110" height="46" rx="10" fill="var(--bg)" stroke="var(--ink)" stroke-width="1.5"/><text x="65" y="168" text-anchor="middle" font-size="14" font-weight="700" fill="var(--ink)">신경망</text><rect x="180" y="140" width="110" height="46" rx="10" fill="var(--pos)" fill-opacity=".15" stroke="var(--pos)" stroke-width="2"/><text x="235" y="168" text-anchor="middle" font-size="14" font-weight="700" fill="var(--ink)">마스크</text><path d="M120 163 H178" stroke="var(--ink)" stroke-width="2.4" marker-end="url(#ah)" fill="none"/><path d="M235 138 V43 H122" stroke="var(--prev)" stroke-width="2.6" stroke-dasharray="7 5" fill="none" marker-end="url(#ah)"/><path d="M65 68 V136" stroke="var(--prev)" stroke-width="2.6" stroke-dasharray="7 5" fill="none" marker-end="url(#ah)"/></svg><div class="note">마스크 → 채널 0 → 다음 계산</div>`,
+ pts:()=>[`마스크 → 채널 0 = {{되먹임}}`,`결과가 조각 테두리에 닿으면 ×1.5씩 넓게 다시 계산 (최대 ×4)`,`그래서 클릭을 더할수록 결과를 <b>고쳐 나가는</b> 방식이 됨`],more:`최근 입력일수록 더 세게 반영되도록 가중치(decay)를 주는 장치도 있다.`,
+ q:'AutoZoom은 언제 작동하나요?',a:'결과가 192³ 조각의 테두리에 닿았을 때. 범위를 ×1.5씩 넓혀 다시 계산한다(최대 ×4).',src:'inference_session.py'}
+];
+let cur=0;const seen=new Set([0]);
+const flow=document.getElementById('flow');
+function renderFlow(){flow.innerHTML=STEPS.map((s,i)=>`<button class="node ${seen.has(i)?'seen':''}" role="tab" aria-selected="${i==cur}" data-i="${i}"><div class="n">${i+1} / 5</div><div class="l">${s.n}</div><div class="s">${s.s}</div></button>${i<4?'<span class="arrow">→</span>':''}`).join('');flow.querySelectorAll('.node').forEach(b=>b.onclick=()=>go(+b.dataset.i))}
+function renderDetail(){const s=STEPS[cur];const d=document.getElementById('detail');
+ d.innerHTML=`<h2>${s.h}</h2><p class="sum">${s.sum}</p><div class="cols"><div><ul class="k">${s.pts().map(p=>`<li>${p}</li>`).join('')}</ul>${s.extra?s.extra():''}<details><summary>더 보기</summary><div class="a">${s.more}<div class="src" style="margin-top:6px">근거: ${s.src}</div></div></details></div><div class="vis">${s.vis()}</div></div><div class="quiz" id="quiz"><div class="q">복습 · ${s.q}</div><button class="btn" id="show" style="margin-top:8px">답 보기</button><div class="ans">${s.a}</div></div>`;
+ d.querySelectorAll('#tools button').forEach(b=>b.onclick=()=>{tool=b.dataset.k;renderDetail()});
+ document.getElementById('show').onclick=()=>{document.getElementById('quiz').classList.toggle('open')};
+ bindTips(d);}
+// 용어 치환(런타임)
+const GL={"복셀": "3D 영상의 \"픽셀\". 가로·세로·깊이가 있는 아주 작은 상자 한 칸이에요.", "슬라이스": "3D CT를 얇게 썬 한 장짜리 2D 사진이에요. 화면에는 이 한 장만 보여요.", "채널": "신경망에 넣는 \"숫자 지도 한 겹\". 포토샵의 레이어처럼 여러 장을 겹쳐 한 번에 입력해요.", "정규화": "값의 범위를 약속한 크기로 맞추는 것. 여기서는 가운데를 1.0으로 두고 멀어질수록 작게 만들어요.", "신경망": "영상을 보고 \"여기가 간이야\"를 칠해 주는 AI 모델. 여기서는 ResEnc U-Net이라는 종류예요.", "마스크": "간이면 1, 아니면 0으로 칠한 지도. 색칠한 영역 그 자체라고 보면 돼요.", "AutoZoom": "결과가 조각 테두리에 닿으면 \"더 넓게 보고 다시 계산\"하는 기능이에요.", "Positive": "\"여기를 포함해\" 라는 뜻의 입력이에요.", "Negative": "\"여기는 빼 줘\" 라는 뜻의 입력이에요.", "되먹임": "계산 결과를 다음 계산의 입력으로 다시 넣는 것이에요.", "조각": "CT 전체가 아니라, 클릭 위치를 중심으로 잘라 낸 192×192×192 복셀 크기의 부분이에요."};
+function T(h){return h.replace(/\{\{(.+?)\}\}/g,(m,k)=>`<span class="term" data-tip="${GL[k]}">${k}</span>`)}
+STEPS.forEach(s=>{['h','sum','more'].forEach(k=>s[k]=T(s[k]));const p=s.pts;s.pts=()=>p().map(T)});
+function go(i){cur=Math.max(0,Math.min(4,i));seen.add(cur);renderFlow();renderDetail();document.getElementById('prev').disabled=cur==0;document.getElementById('next').disabled=cur==4}
+document.getElementById('prev').onclick=()=>go(cur-1);document.getElementById('next').onclick=()=>go(cur+1);
+addEventListener('keydown',e=>{if(e.key=='ArrowRight')go(cur+1);if(e.key=='ArrowLeft')go(cur-1)});
+go(0);
+
+bindTips();</script></body></html>
