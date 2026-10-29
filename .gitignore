@@ -5,3 +5,10 @@ node_modules/
 .env.*
 !.env.example
 *.log
+.venv/
+venv/
+__pycache__/
+.next/
+*.tsbuildinfo
+.omc/
+.claude/settings.local.json
